@@ -1,0 +1,75 @@
+<nav
+  class="navbar navbar-dark sticky-top bg-primary flex-md-nowrap py-3 px-4"
+  data-bs-theme="dark"
+>
+  <div class="col-sm-3 col-md-2 mr-0">
+    <a class="navbar-brand" href="">SONB - Project 9</a>
+  </div>
+</nav>
+
+<div class="container-xxl mt-4">
+  <div class="container inject-btns-container d-flex mb-2">
+    <button type="button" class="btn btn-primary">Inject 1</button>
+    <button type="button" class="btn btn-primary">Inject 2</button>
+    <button type="button" class="btn btn-primary">Inject 3</button>
+  </div>
+  <div class="container d-flex align-items-end mb-4">
+    <div class="input-container">
+      <label for="dataInput" class="form-label mb-0">Change value to</label>
+      <input
+        type="number"
+        class="form-control"
+        id="dataInput"
+        [(ngModel)]="dataToCommit"
+      />
+    </div>
+
+    <button type="submit" class="btn btn-primary mx-2" (click)="commitData()">
+      Submit
+    </button>
+  </div>
+  <div class="container cards-container d-flex flex-wrap">
+    <div
+      class="card shadow-sm"
+      style="width: 11rem"
+      *ngFor="let server of servers"
+    >
+      <div class="card-body">
+        <h5 class="card-title">
+          {{ server.name }}
+          <i
+            class="bi bi-person-arms-up"
+            *ngIf="server.role === 'coordinator'"
+          ></i>
+          <span
+            class="badge"
+            [ngClass]="server.active ? 'text-bg-success' : 'text-bg-danger'"
+            >{{ server.active ? "Active" : "Disabled" }}</span
+          >
+        </h5>
+
+        <p class="card-text">Value: {{ server.value }}</p>
+        <button
+          type="submit"
+          class="btn btn-change-status"
+          [ngClass]="
+            server.active ? 'btn-outline-danger' : 'btn-outline-success'
+          "
+          (click)="changeStatus(server.id)"
+        >
+          {{ server.active ? "Disable" : "Activate" }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <footer
+    class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top"
+  >
+    <p class="col-md-4 mb-0 text-body-secondary">
+      © 2025 Albert Wychowaniec, Bratłomiej Grzesik 2ID21B
+    </p>
+  </footer>
+</div>

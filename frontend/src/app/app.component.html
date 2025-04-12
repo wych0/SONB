@@ -8,12 +8,7 @@
 </nav>
 
 <div class="container-xxl mt-4">
-  <div class="container inject-btns-container d-flex mb-2">
-    <button type="button" class="btn btn-primary">Inject 1</button>
-    <button type="button" class="btn btn-primary">Inject 2</button>
-    <button type="button" class="btn btn-primary">Inject 3</button>
-  </div>
-  <div class="container d-flex align-items-end mb-4">
+  <div class="container d-flex align-items-end mb-4" style="height: 82px">
     <div class="input-container">
       <label for="dataInput" class="form-label mb-0">Change value to</label>
       <input
@@ -21,46 +16,92 @@
         class="form-control"
         id="dataInput"
         [(ngModel)]="dataToCommit"
+        [disabled]="submitted || loading"
       />
     </div>
 
-    <button type="submit" class="btn btn-primary mx-2" (click)="commitData()">
-      Submit
-    </button>
-  </div>
-  <div class="container cards-container d-flex flex-wrap">
-    <div
-      class="card shadow-sm"
-      style="width: 11rem"
-      *ngFor="let server of servers"
+    <button
+      type="submit"
+      class="btn btn-primary mx-2"
+      style="width: 100px"
+      (click)="commitData()"
+      [disabled]="submitted || loading"
     >
-      <div class="card-body">
-        <h5 class="card-title">
-          {{ server.name }}
-          <i
-            class="bi bi-person-arms-up"
-            *ngIf="server.role === 'coordinator'"
-          ></i>
-          <span
-            class="badge"
-            [ngClass]="server.active ? 'text-bg-success' : 'text-bg-danger'"
-            >{{ server.active ? "Active" : "Disabled" }}</span
-          >
-        </h5>
-
-        <p class="card-text">Value: {{ server.value }}</p>
-        <button
-          type="submit"
-          class="btn btn-change-status"
-          [ngClass]="
-            server.active ? 'btn-outline-danger' : 'btn-outline-success'
-          "
-          (click)="changeStatus(server.id)"
-        >
-          {{ server.active ? "Disable" : "Activate" }}
-        </button>
-      </div>
+      {{ submitted ? "Loading.." : "Submit" }}
+    </button>
+    <div class="alert alert-danger mt-4 mb-0" role="alert" *ngIf="errorMessage">
+      {{ errorMessage }}
     </div>
+  </div>
+
+  <div class="container cards-container d-flex flex-wrap">
+    <div class="w-100 d-flex justify-content-center">
+      <div
+        class="spinner-border text-primary"
+        role="status"
+        style="width: 5rem; height: 5rem"
+        *ngIf="loading"
+      ></div>
+    </div>
+
+    <ng-container *ngIf="!loading">
+      <div
+        class="card shadow-sm"
+        style="width: 10rem"
+        *ngFor="let server of servers"
+      >
+        <div class="card-body">
+          <h5 class="card-title">
+            {{ server.name }}
+            <ng-container *ngIf="server.role === 'Coordinator'">
+              <i class="bi bi-person-arms-up"></i>
+              <span class="badge text-bg-primary">Coordinator</span>
+              <button
+                class="btn btn-card btn-danger mt-2"
+                (click)="closeCoordinator()"
+                [disabled]="closingCoordinator || submitted"
+              >
+                Close
+              </button>
+            </ng-container>
+
+            <ng-container *ngIf="server.role !== 'Coordinator'">
+              <span
+                class="badge"
+                [ngClass]="server.active ? 'text-bg-success' : 'text-bg-danger'"
+                >{{ server.active ? "Active" : "Disabled" }}</span
+              >
+            </ng-container>
+          </h5>
+
+          <div
+            *ngIf="server.role !== 'Coordinator'"
+            class="d-flex w-100 justify-content-between"
+          >
+            <button
+              class="btn btn-card"
+              [ngClass]="
+                server.delay !== 0 ? 'btn-danger' : 'btn-outline-danger'
+              "
+              (click)="changeDelay(server.id)"
+              [disabled]="editedServerId === server.id || submitted"
+            >
+              +<i class="bi bi-stopwatch-fill"></i>
+            </button>
+            <button
+              class="btn btn-card"
+              [ngClass]="
+                server.active ? 'btn-outline-danger' : 'btn-outline-success'
+              "
+              (click)="changeStatus(server.id)"
+              [disabled]="editedServerId === server.id || submitted"
+            >
+              {{ server.active ? "Disable" : "Activate" }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
   </div>
 </div>
 
@@ -73,3 +114,5 @@
     </p>
   </footer>
 </div>
+
+<notifier-container></notifier-container>

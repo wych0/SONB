@@ -4,12 +4,9 @@ import {
   WebSocketServer,
   OnGatewayInit,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
-import { UseWsResponse } from './common/ws-response.decorator';
-import { Role } from './role';
 import { CoordinatorService } from './coordinator.service';
-import { Socket } from 'engine.io-client';
 
 @WebSocketGateway()
 export class TransactionGateway implements OnGatewayInit {
@@ -26,14 +23,47 @@ export class TransactionGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('coordinator')
-  @UseWsResponse('response')
-  async handleCoordinator(clinet: Socket, body: any) {
-    await this.coordinatorService.requestToServer(body);
+  async handleCoordinator(client: Socket, body: any) {
+    return await this.coordinatorService.requestToServer(body);
+  }
+
+  @SubscribeMessage('closeCoordinator')
+  async handleCloseCoordinator() {
+    return await this.coordinatorService.closeCoordinator();
+  }
+
+  @SubscribeMessage('servers')
+  async handleServers(client: Socket) {
+    return await this.coordinatorService.getAvailableServers();
+  }
+
+  @SubscribeMessage('status')
+  async handleStatus() {
+    return await this.coordinatorService.getInfo();
+  }
+
+  @SubscribeMessage('changeStatus')
+  async handleChangeStatus() {
+    return await this.coordinatorService.changeStatus();
+  }
+
+  @SubscribeMessage('changeDelay')
+  async handleChangeDelay() {
+    return await this.coordinatorService.changeDelay();
   }
 
   @SubscribeMessage('prepare')
-  @UseWsResponse('prepare_response')
-  async handleHello(clinet: Socket) {
-    return this.coordinatorService.getIsActive();
+  async handlePrepare(client: Socket) {
+    return await this.coordinatorService.onPrepare();
+  }
+
+  @SubscribeMessage('abort')
+  async handleAbort(client: Socket) {
+    return this.coordinatorService.onAbort();
+  }
+
+  @SubscribeMessage('commit')
+  async handleCommit(client: Socket, body: any) {
+    return this.coordinatorService.onCommit(body);
   }
 }
